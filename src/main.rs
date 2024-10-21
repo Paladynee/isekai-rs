@@ -7,7 +7,11 @@
 
 use std::{io, path::Path};
 
-use component::{IsekaiCheatSystem, TerminalInterface, Universe, SAVEFILE_LOCATION};
+use component::{
+    IsekaiCheatSystem, Menu, MenuHandler, Multiverse, TerminalInterface, Universe,
+    SAVEFILE_LOCATION,
+};
+use voxell_utils::time_seeded_rng::TimeSeededXorShift32;
 
 /// fabric of reality (lol)
 mod component;
@@ -17,9 +21,19 @@ mod event_handler;
 
 /// big bang
 fn main() {
-    let mut interface = TerminalInterface::new(io::stdout().lock()).unwrap();
-    let mut universe =
-        IsekaiCheatSystem::load_save_from_file(Path::new(SAVEFILE_LOCATION)).unwrap_or_default();
+    let mut multiverse = Multiverse::new(
+        IsekaiCheatSystem::load_save_from_file(Path::new(SAVEFILE_LOCATION)).unwrap_or_default(),
+        TimeSeededXorShift32::new().unwrap(),
+        TerminalInterface::new(io::stdout()).unwrap(),
+        MenuHandler::new(Menu::MainMenu),
+    );
 
-    interface.start_polling(&mut universe);
+    multiverse
+        .interface
+        .start_polling(
+            &mut multiverse.universe,
+            &mut multiverse.rng,
+            &mut multiverse.menu_handler,
+        )
+        .unwrap();
 }

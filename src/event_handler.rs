@@ -4,9 +4,10 @@ use crossterm::{
     event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers},
     execute,
     style::Print,
+    terminal::{Clear, ClearType},
 };
 
-use crate::component::{TerminalInterface, Universe};
+use crate::component::{Menu, MenuHandler, TerminalInterface, Universe};
 
 /// the user is done with interacting the universe! noo! don't leave yet!
 pub enum HandlerReturn<T> {
@@ -20,7 +21,8 @@ pub enum HandlerReturn<T> {
 pub fn handle_key_event<T: Write>(
     key_event: KeyEvent,
     universe: &mut Universe,
-    terminterface: &mut TerminalInterface<T>,
+    menu_handler: &mut MenuHandler,
+    interface: &mut TerminalInterface<T>,
 ) -> HandlerReturn<String> {
     if key_event.kind != KeyEventKind::Press {
         return HandlerReturn::Continue;
@@ -39,9 +41,40 @@ pub fn handle_key_event<T: Write>(
                 _ => {}
             }
 
-            if let Err(a) = execute!(terminterface.stdout, Print(c)) {
-                return HandlerReturn::Error(a.to_string());
+            match menu_handler.current_menu {
+                Menu::MainMenu => match c {
+                    'p' => {
+                        menu_handler.current_menu = Menu::Gameplay;
+                        if let Err(e) = execute!(interface.stdout, Clear(ClearType::All)) {
+                            return HandlerReturn::Error(e.to_string());
+                        };
+                    }
+
+                    'q' => return HandlerReturn::Quit,
+
+                    's' => {
+                        menu_handler.current_menu = Menu::Settings;
+                        if let Err(e) = execute!(interface.stdout, Clear(ClearType::All)) {
+                            return HandlerReturn::Error(e.to_string());
+                        };
+                    }
+
+                    'h' => {
+                        menu_handler.current_menu = Menu::Help;
+                        if let Err(e) = execute!(interface.stdout, Clear(ClearType::All)) {
+                            return HandlerReturn::Error(e.to_string());
+                        };
+                    }
+
+                    _ => {}
+                },
+
+                _ => {}
             }
+
+            // if let Err(a) = execute!(interface.stdout, Print(c)) {
+            //     return HandlerReturn::Error(a.to_string());
+            // }
         }
 
         _ => {}

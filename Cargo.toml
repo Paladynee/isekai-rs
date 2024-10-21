@@ -4,9 +4,11 @@ name = "lose_where_hoho_you_lose_why_is"
 version = "0.1.0"
 
 [dependencies]
+bitflags = { version = "2.6.0", features = ["serde"] }
 crossterm = "0.28.1"
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
+voxell_utils = { version = "0.1.0", path = "../voxell_utils" }
 
 [profile.dev]
 incremental = true
