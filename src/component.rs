@@ -157,7 +157,7 @@ impl IsekaiCheatSystem {
 
 /// this is made so you can control the game, lol
 pub struct TerminalInterface<T: Write> {
-    stdout: T,
+    pub stdout: T,
 }
 
 impl<T> TerminalInterface<T>
@@ -195,7 +195,7 @@ where
             };
 
             if let Event::Key(a) = event {
-                let res = event_handler::handle_key_event(a, universe);
+                let res = event_handler::handle_key_event(a, universe, self);
                 match res {
                     HandlerReturn::Quit => break,
                     HandlerReturn::Continue => {}
